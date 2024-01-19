@@ -4,15 +4,14 @@ From: mambaorg/micromamba:{{ MICROMAMBA_TAG }}
 %arguments
 	MICROMAMBA_TAG=jammy-cuda-12.3.1
 	PYTHON_VERSION=3.11
-	LLAVA_REPO=https://github.com/haotian-liu/LLaVA
-	LLAVA_TAG=v1.1.3
+	LLAVA_ARCHIVE_URL=https://github.com/haotian-liu/LLaVA/archive/refs/tags/v1.1.3.tar.gz
 	DASEL_URL=https://github.com/TomWright/dasel/releases/download/v2.5.0/dasel_linux_amd64
 
 %labels
 	VERSION 0.0.2
 
 %setup
-	[ -n "${APPTAINER_ROOTFS:-}" ] && ./write-apptainer-labels.sh > "${APPTAINER_ROOTFS}/.build_labels"
+	[ -n "${APPTAINER_ROOTFS:-}" ] && ./write-apptainer-labels.sh >"${APPTAINER_ROOTFS}/.build_labels"
 
 %files
 	llava-run.py /opt/local/bin/llava-run
@@ -21,18 +20,25 @@ From: mambaorg/micromamba:{{ MICROMAMBA_TAG }}
 	set -ex
 	export MAMBA_DOCKERFILE_ACTIVATE=1
 	export DEBIAN_FRONTEND=noninteractive
-	apt-get update -y && apt-get install -y --no-install-recommends \
-		ca-certificates \
-		curl \
-		git
+	apt-get update -y
+	apt-get install -yq --no-install-recommends curl
 	apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 	mkdir -p /opt/setup && cd "$_"
 	curl -fL "{{ DASEL_URL }}" -o /opt/setup/dasel && chmod +x /opt/setup/dasel
-	cd /opt/setup && git clone --branch {{ LLAVA_TAG }} --single-branch --depth 1 {{ LLAVA_REPO }} llava-src && cd llava-src
 
+	curl -fL https://github.com/haotian-liu/LLaVA/archive/refs/tags/v1.1.3.tar.gz -o llava.tar.gz
+	mkdir llava
+	tar -xzvf llava.tar.gz --directory llava --strip-components 1
+	[ -r llava/pyproject.toml ] || {
+		"Did not find pyproject.toml in extracted LLaVA source" 2>&echo
+		exit 1
+	}
+	cd llava
 	# Add setuptools-scm to pyproject.toml
 	/opt/setup/dasel put -f pyproject.toml -t string -v setuptools-scm -s 'build-system.requires.append()'
+
+	mkdir -p /opt/setup && cd "$_"
 
 	micromamba install -y -n base python={{ PYTHON_VERSION }} -c conda-forge pip
 	micromamba run -n base python -m pip install --no-cache-dir --upgrade pip

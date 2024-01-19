@@ -46,6 +46,7 @@ jobs:
           IMAGE_TAG="${IMAGE_TAG##*@}"
           IMAGE_NAME=${{ github.ref_name }}
           IMAGE_NAME="${IMAGE_NAME%%@*}"
+          [ -n "${IMAGE_NAME:-} ]" || IMAGE_NAME="$(basename ${{ github.repository }})"
           DST="oras://ghcr.io/${{ github.repository }}/${IMAGE_NAME}:${IMAGE_TAG}"
           echo "Pushing to \"${DST}\"" >&2
           apptainer remote login -u ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} oras://ghcr.io
