@@ -1,0 +1,43 @@
+# Use this environment file if your computer has a nvidia GPU and runs Windows or Linux.
+
+name: llava
+
+channels:
+    - pytorch
+    - nvidia
+    - conda-forge
+    - anaconda
+
+dependencies:
+  - conda-forge::python ~=3.11    # Run into _MAX_WINDOWS_WORKERS not found if ==
+  - pytorch::pytorch
+  - pytorch::pytorch-cuda=12.1
+  - pytorch::torchvision
+  - conda-forge::numpy
+  - scikit-learn>-1.2.2
+  - conda-forge::accelerate>=0.21.0
+  - conda-forge::bitsandbytes
+  - conda-forge::einops>=0.6.1
+  - conda-forge::einops-exts>=0.0.4
+  - conda-forge::fastapi
+  - conda-forge::gradio>=4.16.0
+  - conda-forge::gradio-client>=0.8.1
+  - conda-forge::httpx>=0.24.0
+  - conda-forge::markdown2
+  - conda-forge::peft
+  - conda-forge::pydantic
+  - conda-forge::requests
+  - conda-forge::sentencepiece>=0.1.99
+  - conda-forge::shortuuid
+  - conda-forge::timm>=0.6.13
+  - conda-forge::tokenizers>=0.15.1
+  - conda-forge::torch>=2.1.2
+  - conda-forge::torchvision>=0.16.2
+  - conda-forge::transformers>=4.37.2
+  - conda-forge::uvicorn
+
+#  - nvidia/label/cuda-12.4.1::cuda-toolkit
+#  - nvidia/label/cuda-12.4.1::cuda-nvcc 
+#  - anaconda::cudnn
+#  - conda-forge::deepspeed
+#  - conda-forge::ninja

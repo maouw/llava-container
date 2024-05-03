@@ -2,15 +2,10 @@ Bootstrap: docker
 From: mambaorg/micromamba:{{ MICROMAMBA_TAG }}
 
 %arguments
-	MICROMAMBA_TAG=jammy-cuda-12.3.1
+	MICROMAMBA_TAG=jammy
 	PYTHON_VERSION=3.11
 	LLAVA_URL=https://codeload.github.com/haotian-liu/LLaVA/tar.gz/refs/heads/main
 
-%labels
-	VERSION 0.0.4
-
-%setup
-	[ -n "${APPTAINER_ROOTFS:-}" ] && ../.build-scripts/write-apptainer-labels.sh >"${APPTAINER_ROOTFS}/.build_labels"
 
 %files
 	../llava-run.py /opt/local/bin/llava-run
@@ -21,19 +16,22 @@ From: mambaorg/micromamba:{{ MICROMAMBA_TAG }}
 	set -ex
 	
 	# Set up the micromamba base environment, using requests to download LLaVA:
-	micromamba install -y -n base -c conda-forge python={{ PYTHON_VERSION }} pip requests
-	micromamba run -n base python -m pip install --upgrade pip
-	
+	micromamba install -y -n base -c conda-forge curl
+    
+    micromamba create -y -n llava -c conda-forge python={{ PYTHON_VERSION }} pip
+
 	# Download and install LLaVA:
 	mkdir -p /opt/setup/llava && cd /opt/setup/llava
-	micromamba run -n base python -c \
-		'import requests;open("llava.tar.gz", "wb").write(requests.get("{{ LLAVA_URL }}",allow_redirects=True).content)' &&
-		tar -xzf llava.tar.gz --strip-components=1
+    curl -fsSL "{{ LLAVA_URL }}" -o llava.tar.gz
+	tar -xzf llava.tar.gz --strip-components=1
 	
 	# Update pyproject.toml to include the package data in examples (web server breaks without):
 	printf '[tool.setuptools.package-data]\nllava = ["serve/examples/*.jpg"]' >>pyproject.toml
 	
-	# Install LLaVA and dependencies:
+	# Install LLaVA dependencies:
+	micromamba run -n base python -m pip install --no-cache-dir -r /opt/setup/requirements.txt
+	
+	# Install LLaVA:
 	micromamba run -n base python -m pip install --no-cache-dir --config-settings="--install-data=$PWD/llava" .
 	
 	# Clean up:
@@ -43,12 +41,17 @@ From: mambaorg/micromamba:{{ MICROMAMBA_TAG }}
 
 %environment
 	export MAMBA_DOCKERFILE_ACTIVATE=1
+    export ENV_NAME=llava
 	export PATH="/opt/local/bin:${PATH}"
 
 %runscript
 	# Run the provided command with the micromamba base environment activated:
 	eval "$(micromamba shell hook --shell posix)"
-	micromamba activate "${ENV_NAME:-base}"
-	echo "Using HUGGINGFACE_HUB_CACHE=\"${HUGGINGFACE_HUB_CACHE:-}\"" >&2
+	micromamba activate llava
+    if [ -n "${HUGGINGFACE_HUB_CACHE:-}" ]; then
+        echo "Using HUGGINGFACE_HUB_CACHE=\"${HUGGINGFACE_HUB_CACHE:-}\"" >&2
+    else
+        echo "HUGGINGFACE_HUB_CACHE not set!" >&2
+    fi
 	exec "$@"
 
