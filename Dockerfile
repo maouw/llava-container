@@ -40,8 +40,8 @@ RUN <<-EOF
     export CI=1
     micromamba create -v -y -n "${ENV_NAME}" -f environment.yaml
     # Install LLaVA:
-    micromamba run -v -y -n "${ENV_NAME}" -e TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}" python -m pip install --no-deps --no-cache-dir --config-settings="--install-data=$PWD/llava" .
-    
+    micromamba run -n "${ENV_NAME}" -e TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST}" python -m pip install --no-deps --no-cache-dir --config-settings="--install-data=$PWD/llava" .
+
     # Clean up:
     micromamba run -n "${ENV_NAME}" python -m pip cache purge
     micromamba clean -y -all
