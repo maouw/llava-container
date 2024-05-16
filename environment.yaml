@@ -9,35 +9,37 @@ channels:
     - anaconda
 
 dependencies:
-  - conda-forge::python ~=3.11    # Run into _MAX_WINDOWS_WORKERS not found if ==
-  - pytorch::pytorch
-  - pytorch::pytorch-cuda=12.1
+  - python~=3.12
+  - pip
+  - pytorch::pytorch-cuda~=12.1
+  - pytorch::pytorch=*=*cuda12.1* # | linux-64/pytorch-2.3.0-py3.12_cuda12.1_cudnn8.9.2_0.tar.bz2
   - pytorch::torchvision
-  - conda-forge::numpy
-  - scikit-learn>-1.2.2
-  - conda-forge::accelerate>=0.21.0
-  - conda-forge::bitsandbytes
-  - conda-forge::einops>=0.6.1
-  - conda-forge::einops-exts>=0.0.4
-  - conda-forge::fastapi
-  - conda-forge::gradio>=4.16.0
-  - conda-forge::gradio-client>=0.8.1
-  - conda-forge::httpx>=0.24.0
-  - conda-forge::markdown2
-  - conda-forge::peft
-  - conda-forge::pydantic
-  - conda-forge::requests
-  - conda-forge::sentencepiece>=0.1.99
-  - conda-forge::shortuuid
-  - conda-forge::timm>=0.6.13
-  - conda-forge::tokenizers>=0.15.1
-  - conda-forge::torch>=2.1.2
-  - conda-forge::torchvision>=0.16.2
-  - conda-forge::transformers>=4.37.2
-  - conda-forge::uvicorn
+  - numpy
+  - scikit-learn>=1.2.2
+  - accelerate>=0.21.0
+  - bitsandbytes
+  - einops>=0.6.1
+  - fastapi
+  - gradio>=4.16.0
+  - gradio-client>=0.8.1
+  - httpx>=0.24.0
+  - markdown2
+  - peft
+  - pip
+  - pydantic
+  - requests
+  - sentencepiece>=0.1.99
+  - shortuuid
+  - timm>=0.6.13
+  - tokenizers>=0.15.1
+  - transformers>=4.37.2
+  - uvicorn
+  - pip:
+    - einops-exts>=0.0.4
 
+    # Anything else that pip requirement files allows should work seamlessly...
 #  - nvidia/label/cuda-12.4.1::cuda-toolkit
 #  - nvidia/label/cuda-12.4.1::cuda-nvcc 
 #  - anaconda::cudnn
-#  - conda-forge::deepspeed
-#  - conda-forge::ninja
+#  - deepspeed
+#  - ninja
