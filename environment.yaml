@@ -26,6 +26,7 @@ dependencies:
   - markdown2
   - peft
   - pip
+  - protobuf
   - pydantic
   - requests
   - sentencepiece>=0.1.99
